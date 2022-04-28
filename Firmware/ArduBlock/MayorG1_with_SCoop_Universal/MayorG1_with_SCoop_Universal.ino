@@ -1,7 +1,9 @@
+#import <Arduino.h>
 #include <Servo.h>
 #include <SCoop.h>
+#include "MainUtilities.h"
 
-int _ABVAR_1_microstep = 0 ;
+int microstep = 0 ;
 bool _ABVAR_2_StartupLock= false ;
 void __ardublockDigitalWrite(int pinNumber, boolean status)
 {
@@ -12,7 +14,7 @@ void __ardublockDigitalWrite(int pinNumber, boolean status)
 int _ABVAR_3_SpinCount = 0 ;
 int _ABVAR_4_timer = 0 ;
 double _ABVAR_5_delayCurve = 0.0 ;
-Servo servo_pin_3;
+//Servo servo_pin;
 int _ABVAR_6_servoSpeed = 0 ;
 bool _ABVAR_7_proceed= false ;
 bool _ABVAR_8_click= false ;
@@ -42,17 +44,17 @@ bool _ABVAR_16_gatekeeper= false ;
 void fullAuto();
 void selectFire();
 void Home();
-
+/*
 void setup()
 {
-  servo_pin_3.attach(3);
+  servo_pin.attach(3);
   pinMode( 2 , INPUT_PULLUP);
 
   pinMode( 4 , INPUT_PULLUP);
 
   mySCoop.start();
   Serial.begin(9600);
-  _ABVAR_1_microstep = 16 ;
+  microstep = 16 ;
 
   _ABVAR_2_StartupLock = HIGH ;
 
@@ -66,7 +68,7 @@ void setup()
 
   _ABVAR_5_delayCurve = 10.0 ;
 
-  servo_pin_3.write( 37 );
+  servo_pin.write( 37 );
 
   _ABVAR_6_servoSpeed = 37 ;
 
@@ -83,7 +85,7 @@ void loop()
   mySCoop.sleep(1000);
   yield();
 }
-
+*/
 defineTaskLoop(scoopTask1)
 {
   if (( ( _ABVAR_7_proceed ) == ( HIGH ) ))
@@ -133,7 +135,7 @@ defineTaskLoop(scoopTask2)
       _ABVAR_9_delayToggle = HIGH ;
       _ABVAR_7_proceed = LOW ;
     }
-    servo_pin_3.write( _ABVAR_6_servoSpeed );
+    servo_pin.write( _ABVAR_6_servoSpeed );
     sleep(10);
   }
 }
@@ -167,11 +169,11 @@ defineTaskLoop(scoopTask4)
     {
       if (( ( _ABVAR_12_initialSet ) == ( LOW ) ))
       {
-        _ABVAR_13_PushSpeed = ( map ( __ardublockAnalogRead(1) , 0 , 1000 , 0 , ( 2000 * _ABVAR_1_microstep ) )  - ( map ( __ardublockAnalogRead(1) , 0 , 1000 , 0 , ( 2000 * _ABVAR_1_microstep ) )  * 0.2 ) ) ;
-        _ABVAR_14_Acell = ( map ( __ardublockAnalogRead(1) , 0 , 1000 , 0 , ( 2000 * _ABVAR_1_microstep ) )  - ( map ( __ardublockAnalogRead(1) , 0 , 1000 , 0 , ( 2000 * _ABVAR_1_microstep ) )  * 0.8 ) ) ;
+        _ABVAR_13_PushSpeed = ( map ( __ardublockAnalogRead(1) , 0 , 1000 , 0 , ( 2000 * microstep ) )  - ( map ( __ardublockAnalogRead(1) , 0 , 1000 , 0 , ( 2000 * microstep ) )  * 0.2 ) ) ;
+        _ABVAR_14_Acell = ( map ( __ardublockAnalogRead(1) , 0 , 1000 , 0 , ( 2000 * microstep ) )  - ( map ( __ardublockAnalogRead(1) , 0 , 1000 , 0 , ( 2000 * microstep ) )  * 0.8 ) ) ;
         _ABVAR_12_initialSet = HIGH ;
       }
-      if (( ( _ABVAR_13_PushSpeed ) < ( map ( __ardublockAnalogRead(1) , 0 , 1000 , 0 , ( 2000 * _ABVAR_1_microstep ) )  ) ))
+      if (( ( _ABVAR_13_PushSpeed ) < ( map ( __ardublockAnalogRead(1) , 0 , 1000 , 0 , ( 2000 * microstep ) )  ) ))
       {
         _ABVAR_13_PushSpeed = ( _ABVAR_13_PushSpeed + ( _ABVAR_14_Acell / 40 ) ) ;
         sleep(10);
@@ -221,7 +223,7 @@ void Home()
   if (( ( __ardublockDigitalRead(2) ) == ( HIGH ) ))
   {
     __ardublockDigitalWrite(7, LOW);
-    tone(5, ( 600 * _ABVAR_1_microstep ));
+    tone(5, ( 600 * microstep ));
   }
   else
   {

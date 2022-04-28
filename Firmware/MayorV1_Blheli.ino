@@ -1,226 +1,281 @@
-//publushed on 4/6/2019 by Dr_Glaucous. Public Version 1.0
-#include <Servo.h> //for esc
+#include <Servo.h>
+#include <SCoop.h>
 
-int angle = 0 ; //esc speed
-int time = 0 ; //time
-Servo servo_pin_3; //attaches "servo" (esc) to pin 3
-int pos = 0 ; //pusher pot reading
-int cyclecount = 0 ; //cycles for downslope function
-int loops = 0 ; //cycles for wait function
-//====================================================
-int var_one; //memory
-int var_two; //same
-int var_three; //same
-int var_four; //same
+int _ABVAR_1_microstep = 0 ;
+bool _ABVAR_2_StartupLock= false ;
+void __ardublockDigitalWrite(int pinNumber, boolean status)
+{
+  pinMode(pinNumber, OUTPUT);
+  digitalWrite(pinNumber, status);
+}
 
-void fullAuto(); //full auto fire mode
-void selectFire3(); //select fire 3 (duh)
-void wait(); //determines wether to wait for flywheels to rev before pushing darts
-void downslope(); //de-revs the ESCS when not in use
+int _ABVAR_3_SpinCount = 0 ;
+int _ABVAR_4_timer = 0 ;
+double _ABVAR_5_delayCurve = 0.0 ;
+Servo servo_pin_3;
+int _ABVAR_6_servoSpeed = 0 ;
+int __ardublockAnalogRead(int pinNumber)
+{
+  pinMode(pinNumber, INPUT);
+  return analogRead(pinNumber);
+}
+
+
+int _ABVAR_7_FireType = 0 ;
+bool _ABVAR_8_proceed= false ;
+bool _ABVAR_9_click= false ;
+boolean __ardublockDigitalRead(int pinNumber)
+{
+  pinMode(pinNumber, INPUT);
+  return digitalRead(pinNumber);
+}
+
+
+bool _ABVAR_10_initialSet= false ;
+double _ABVAR_11_PushSpeed = 0.0 ;
+double _ABVAR_12_Acell = 0.0 ;
+bool _ABVAR_13_delayToggle= false ;
+int _ABVAR_14_servoDelay = 0 ;
+bool _ABVAR_15_done= false ;
+bool _ABVAR_16_gatekeeper= false ;
+
+void fullAuto();
+void selectFire();
+void Home();
 
 void setup()
 {
-  pinMode( 2, INPUT); //trigger
-  pinMode( 6, INPUT); //endstop
-  pinMode( 8 , OUTPUT); //stepper motor enable (HIGH is off, LOW is on)
-  pinMode( 7 , OUTPUT); //stepper direction
-  servo_pin_3.attach(3); //esc
-  Serial.begin(9600);
-  pinMode( 5 , OUTPUT); //stepper control
-  digitalWrite( 8 , HIGH ); //disable stepper
+  servo_pin_3.attach(3);
+  mySCoop.start();
+  _ABVAR_1_microstep = 16 ;
 
-  digitalWrite( 7 , HIGH ); //set direction of stepper
+  _ABVAR_2_StartupLock = HIGH ;
 
-  angle = 37 ; //set esc sngle speed (Minimum)
+  __ardublockDigitalWrite(8, HIGH);
 
-  time = 50 ; //set wait function variable)
+  __ardublockDigitalWrite(7, HIGH);
 
-  servo_pin_3.write( 37 ); //set esc to esc angle speed (Min)
+  _ABVAR_3_SpinCount = 0 ;
 
-  delay( 3000 ); //waits for escs to arm
+  _ABVAR_4_timer = 0 ;
+
+  _ABVAR_5_delayCurve = 10.0 ;
+
+  servo_pin_3.write( 37 );
+
+  _ABVAR_6_servoSpeed = 37 ;
+
+  delay( 3000 );
+
+  _ABVAR_2_StartupLock = LOW ;
 
 }
 
 void loop()
 {
-  if (( ( ( analogRead(1) ) >= ( 0 ) ) && ( ( analogRead(1) ) < ( 500 ) ) )) //determines what mode to enter; 2 modes right now
+  mySCoop.sleep(1000);
+  yield();
+}
+
+defineTaskLoop(scoopTask1)
+{
+  if (( ( __ardublockAnalogRead(1) ) < ( 250 ) ))
   {
     fullAuto();
   }
   else
   {
-    selectFire3();
+    if (( ( __ardublockAnalogRead(1) ) < ( 500 ) ))
+    {
+      _ABVAR_7_FireType = 3 ;
+      _ABVAR_5_delayCurve = 8.9 ;
+      selectFire();
+    }
+    else
+    {
+      if (( ( __ardublockAnalogRead(1) ) < ( 750 ) ))
+      {
+        _ABVAR_7_FireType = 2 ;
+        _ABVAR_5_delayCurve = 8.0 ;
+        selectFire();
+      }
+      else
+      {
+        _ABVAR_7_FireType = 1 ;
+        _ABVAR_5_delayCurve = 7.4 ;
+        selectFire();
+      }
+    }
   }
-  downslope();
-  servo_pin_3.write( angle );
-  wait();
-  Serial.print(angle);
-  Serial.println();
 }
-// that's the whole loop!
+
+defineTaskLoop(scoopTask2)
+{
+  if (( ( _ABVAR_8_proceed ) == ( HIGH ) ))
+  {
+    if (( ( _ABVAR_9_click ) == ( HIGH ) ))
+    {
+      _ABVAR_4_timer = ( _ABVAR_4_timer + 1 ) ;
+      sleep(10);
+    }
+    if (( ( _ABVAR_4_timer ) >= ( ( ( pow( _ABVAR_5_delayCurve ,6 ) / __ardublockAnalogRead(0) ) / 10 ) ) ))
+    {
+      _ABVAR_9_click = LOW ;
+      _ABVAR_4_timer = 0 ;
+      noTone(5);
+    }
+  }
+}
+
+defineTaskLoop(scoopTask3)
+{
+  if (( ( ( __ardublockDigitalRead(2) ) == ( LOW ) ) || ( ( _ABVAR_9_click ) == ( HIGH ) ) ))
+  {
+    if (( ( _ABVAR_8_proceed ) == ( HIGH ) ))
+    {
+      if (( ( _ABVAR_10_initialSet ) == ( LOW ) ))
+      {
+        _ABVAR_11_PushSpeed = ( map ( __ardublockAnalogRead(0) , 0 , 1000 , 0 , ( 2000 * _ABVAR_1_microstep ) )  - ( map ( __ardublockAnalogRead(0) , 0 , 1000 , 0 , ( 2000 * _ABVAR_1_microstep ) )  * 0.2 ) ) ;
+        _ABVAR_12_Acell = ( map ( __ardublockAnalogRead(0) , 0 , 1000 , 0 , ( 2000 * _ABVAR_1_microstep ) )  - ( map ( __ardublockAnalogRead(0) , 0 , 1000 , 0 , ( 2000 * _ABVAR_1_microstep ) )  * 0.8 ) ) ;
+        _ABVAR_10_initialSet = HIGH ;
+      }
+      if (( ( _ABVAR_11_PushSpeed ) < ( map ( __ardublockAnalogRead(0) , 0 , 1000 , 0 , ( 2000 * _ABVAR_1_microstep ) )  ) ))
+      {
+        _ABVAR_11_PushSpeed = ( _ABVAR_11_PushSpeed + ( _ABVAR_12_Acell / 40 ) ) ;
+        sleep(10);
+      }
+    }
+  }
+  else
+  {
+    _ABVAR_10_initialSet = LOW ;
+  }
+}
+
+defineTaskLoop(scoopTask4)
+{
+  if (( ( _ABVAR_2_StartupLock ) == ( LOW ) ))
+  {
+    if (( ( ( __ardublockDigitalRead(2) ) == ( LOW ) ) || ( ( _ABVAR_9_click ) == ( HIGH ) ) ))
+    {
+      if (( ( _ABVAR_13_delayToggle ) == ( HIGH ) ))
+      {
+        _ABVAR_14_servoDelay = ( map ( __ardublockAnalogRead(2) , 0 , 1023 , 0 , 100 )  - map ( _ABVAR_6_servoSpeed , 37 , 180 , 0 , 100 )  ) ;
+        _ABVAR_13_delayToggle = LOW ;
+      }
+      _ABVAR_6_servoSpeed = map ( __ardublockAnalogRead(2) , 0 , 1023 , 37 , 180 )  ;
+      if (( ( _ABVAR_14_servoDelay ) <= ( 0 ) ))
+      {
+        _ABVAR_8_proceed = HIGH ;
+      }
+      else
+      {
+        _ABVAR_14_servoDelay = ( _ABVAR_14_servoDelay - 1 ) ;
+        _ABVAR_8_proceed = LOW ;
+      }
+    }
+    else
+    {
+      if (( ( _ABVAR_6_servoSpeed ) > ( 37 ) ))
+      {
+        _ABVAR_6_servoSpeed = ( _ABVAR_6_servoSpeed - 1 ) ;
+      }
+      _ABVAR_13_delayToggle = HIGH ;
+      _ABVAR_8_proceed = LOW ;
+    }
+    servo_pin_3.write( _ABVAR_6_servoSpeed );
+    sleep(10);
+  }
+}
+
+defineTaskLoop(scoopTask5)
+{
+  if (( ( _ABVAR_9_click ) == ( HIGH ) ))
+  {
+    if (( ( ( __ardublockDigitalRead(6) ) == ( LOW ) ) && ( ( _ABVAR_15_done ) == ( LOW ) ) ))
+    {
+      _ABVAR_3_SpinCount = ( _ABVAR_3_SpinCount + 1 ) ;
+      _ABVAR_15_done = HIGH ;
+    }
+    if (( ( __ardublockDigitalRead(6) ) == ( HIGH ) ))
+    {
+      _ABVAR_15_done = LOW ;
+    }
+  }
+  else
+  {
+    _ABVAR_15_done = HIGH ;
+    _ABVAR_3_SpinCount = 0 ;
+  }
+}
+
+void Home()
+{
+  if (( ( __ardublockDigitalRead(6) ) == ( HIGH ) ))
+  {
+    __ardublockDigitalWrite(8, LOW);
+    tone(5, ( 600 * _ABVAR_1_microstep ));
+  }
+  else
+  {
+    noTone(5);
+    __ardublockDigitalWrite(8, HIGH);
+  }
+}
+
 void fullAuto()
 {
-  if (( ( digitalRead(2) ) == ( HIGH ) )) //trigger
+  if (( ( __ardublockDigitalRead(2) ) == ( LOW ) ))
   {
-    while ( ( ( digitalRead(2) ) == ( HIGH ) ) )
+    __ardublockDigitalWrite(8, LOW);
+    while ( ( ( __ardublockDigitalRead(2) ) == ( LOW ) ) )
     {
-      angle = map ( analogRead(2) , 0 , 1023 , 37 , 180 )  ;
-      digitalWrite( 8 , LOW );
-      servo_pin_3.write( angle );
-      if (( ( time ) < ( 50 ) )) //should the flywheels be waited on?
+      mySCoop.sleep(1);
+      if (( ( _ABVAR_8_proceed ) == ( HIGH ) ))
       {
+        tone(5, _ABVAR_11_PushSpeed);
       }
-      else
+    }
+
+  }
+  else
+  {
+    Home();
+  }
+}
+
+void selectFire()
+{
+  if (( ( __ardublockDigitalRead(2) ) == ( LOW ) ))
+  {
+    if (( ( _ABVAR_16_gatekeeper ) == ( LOW ) ))
+    {
+      _ABVAR_9_click = HIGH ;
+      __ardublockDigitalWrite(8, LOW);
+      while ( ( ( _ABVAR_9_click ) == ( HIGH ) ) )
       {
-        delay( 500 );
-      }
-      while ( ( ( digitalRead(2) ) == ( HIGH ) ) ) //this mini function accelerates the stepper to achieve higher speeds
-      {
-        pos = ( map ( analogRead(0) , 0 , 1023 , 1023 , 0 )  + 50 ) ;
-        while ( ( ( pos ) >= ( map ( analogRead(0) , 0 , 1023 , 1023 , 0 )  ) ) )
+        mySCoop.sleep(1);
+        if (( ( _ABVAR_8_proceed ) == ( HIGH ) ))
         {
-          pos = ( pos - 5 ) ;
-          for (var_one=1; var_one<= ( 20 ); ++var_one )
+          if (( ( _ABVAR_3_SpinCount ) < ( _ABVAR_7_FireType ) ))
           {
-            digitalWrite( 5 , HIGH );
-            delayMicroseconds( map ( pos , 0 , 1023 , 5 , 1000 )  );
-            digitalWrite( 5 , LOW );
-            delayMicroseconds( map ( pos , 0 , 1023 , 5 , 1000 )  );
+            tone(5, _ABVAR_11_PushSpeed);
+          }
+          else
+          {
+            _ABVAR_9_click = LOW ;
+            noTone(5);
           }
         }
-
-        while ( ( ( digitalRead(2) ) == ( HIGH ) ) ) //stepper runs with this function
-        {
-          digitalWrite( 5 , HIGH );
-          delayMicroseconds( pos );
-          digitalWrite( 5 , LOW );
-          delayMicroseconds( pos );
-        }
-
       }
 
-      digitalWrite( 8 , HIGH ); //disables stepper
+      _ABVAR_16_gatekeeper = HIGH ;
+      _ABVAR_4_timer = 0 ;
     }
-
-    cyclecount = 0 ; //sets wait and cdownslope functions back to the beggining
-    time = 0 ;
   }
-  else //this function homes the stepper
+  else
   {
-    if (( ( digitalRead(6) ) == ( LOW ) ))
-    {
-      digitalWrite( 8 , LOW );
-      while ( ( ( digitalRead(6) ) == ( LOW ) ) )
-      {
-        digitalWrite( 5 , HIGH );
-        delayMicroseconds( 836 );
-        digitalWrite( 5 , LOW );
-        delayMicroseconds( 836 );
-      }
-
-      digitalWrite( 8 , HIGH );
-    }
+    _ABVAR_16_gatekeeper = LOW ;
   }
+  Home();
 }
-
-void wait() //wait function (for rev waiting)
-{
-  if (( ( time ) < ( 50 ) ))
-  {
-    if (( ( loops ) == ( 4 ) ))
-    {
-      time = ( time + 1 ) ;
-      loops = 0 ;
-    }
-    else
-    {
-      loops = ( loops + 1 ) ;
-    }
-  }
-}
-
-void downslope() //flywheel downrevving function
-{
-  if (( ( angle ) > ( 37 ) ))
-  {
-    if (( ( cyclecount ) == ( 5 ) ))
-    {
-      angle = ( angle - 1 ) ;
-      cyclecount = 0 ;
-    }
-    else
-    {
-      cyclecount = ( cyclecount + 1 ) ;
-    }
-  }
-}
-
-void selectFire3()
-{
-  if (( ( digitalRead(2) ) == ( HIGH ) ))
-  {
-    if (( ( digitalRead(2) ) == ( HIGH ) ))
-    {
-      angle = map ( analogRead(2) , 0 , 1023 , 37 , 180 )  ;
-      digitalWrite( 8 , LOW );
-      servo_pin_3.write( angle );
-      if (( ( time ) < ( 50 ) ))
-      {
-      }
-      else
-      {
-        delay( 500 );
-      }
-      pos = ( map ( analogRead(0) , 0 , 1023 , 1023 , 0 )  + 50 ) ; //mini acceleration function
-      while ( ( ( pos ) >= ( map ( analogRead(0) , 0 , 1023 , 1023 , 0 )  ) ) )
-      {
-        pos = ( pos - 5 ) ;
-        for (var_two=1; var_two<= ( 20 ); ++var_two )
-        {
-          digitalWrite( 5 , HIGH );
-          delayMicroseconds( map ( pos , 0 , 1023 , 5 , 1000 )  );
-          digitalWrite( 5 , LOW );
-          delayMicroseconds( map ( pos , 0 , 1023 , 5 , 1000 )  );
-        }
-      }
-
-      for (var_three=1; var_three<= ( 2 ); ++var_three )
-      {
-        for (var_four=1; var_four<= ( 200 ); ++var_four ) //repeats stepper function 200 times (2 rotations) (third rotation is done with accelration function)
-        {
-          digitalWrite( 5 , HIGH );
-          delayMicroseconds( pos );
-          digitalWrite( 5 , LOW );
-          delayMicroseconds( pos );
-        }
-      }
-    }
-    digitalWrite( 8 , HIGH ); //disables stepper when not in use
-    cyclecount = 0 ; //resets wait and downslope
-    time = 0 ;
-    while ( ( ( digitalRead(2) ) == ( HIGH ) ) ) //waits for trigger to be released before continuing. Can be removed if this effect is not wanted
-    {
-      delayMicroseconds( 1 );
-    }
-
-  }
-  else //homing function
-  {
-    if (( ( digitalRead(6) ) == ( LOW ) ))
-    {
-      digitalWrite( 8 , LOW );
-      digitalWrite( 7 , LOW );
-      while ( ( ( digitalRead(6) ) == ( LOW ) ) )
-      {
-        digitalWrite( 5 , HIGH );
-        delayMicroseconds( 836 );
-        digitalWrite( 5 , LOW );
-        delayMicroseconds( 836 );
-      }
-
-      digitalWrite( 8 , HIGH );
-      digitalWrite( 7 , HIGH );
-    }
-  }
-}
-

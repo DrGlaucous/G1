@@ -65,18 +65,39 @@ void loop()
 //motor timeout prevention
 defineTaskLoop(scoopTask1)
 {
-  if (( ( _ABVAR_7_proceed ) == ( HIGH ) ))
+  SelectFireTimeout();
+}
+
+
+//Mode Select
+defineTaskLoop(scoopTask5)
+{
+  if (( ( ArdAnalogRead(0) ) < ( 250 ) ))
   {
-    if (( ( _ABVAR_8_click ) == ( HIGH ) ))
+    fullAuto();
+  }
+  else
+  {
+    if (( ( ArdAnalogRead(0) ) < ( 500 ) ))
     {
-      _ABVAR_4_timer = ( _ABVAR_4_timer + 1 ) ;
-      sleep(10);
+      FireType = 3 ;
+      delayCurve = 8.9 ;
+      selectFire();
     }
-    if (( ( _ABVAR_4_timer ) >= ( ( ( pow( _ABVAR_5_delayCurve ,6 ) / __ardublockAnalogRead(1) ) / 10 ) ) ))
+    else
     {
-      _ABVAR_8_click = LOW ;
-      _ABVAR_4_timer = 0 ;
-      noTone(5);
+      if (( ( ArdAnalogRead(0) ) < ( 750 ) ))
+      {
+        FireType = 2 ;
+        delayCurve = 8.0 ;
+        selectFire();
+      }
+      else
+      {
+        FireType = 1 ;
+        delayCurve = 7.4 ;
+        selectFire();
+      }
     }
   }
 }

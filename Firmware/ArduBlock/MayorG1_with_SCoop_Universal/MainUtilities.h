@@ -23,3 +23,6 @@ extern Servo servo_pin;
 
 
 void ArdDigitalWrite(int pinNumber, bool tstatus);
+int ArdAnalogRead(int pinNumber);
+bool ArdDigitalRead(int pinNumber);
+void SelectFireTimeout(void);

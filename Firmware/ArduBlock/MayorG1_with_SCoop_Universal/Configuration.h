@@ -25,18 +25,24 @@
 
 //analog input potentiometer that controls the speed of the dart pusher
 #define PUSH_SPEED_PIN 0
+//for full auto/select fire/etc
+#define PUSH_MODE_PIN 1
+//how hard the blaster shoots
+#define SHOOT_POWER_PIN 2
 
 
 
 #if BACKEND_TYPE == BRUSHED_BACKEND
   #define DC_PIN
+  #define STEP_PIN 5
   #define OTHER_SETTINGS//filler for now
 #elif BACKEND_TYPE == STEPPER_BACKEND
 
   //mictostep setting that the stepper driver is set to
   #define MICROSTEP 16
-  #define STEP_PIN
-  #define OTHER_SETTINGS
+  //pin assignments
+  #define STEP_PIN 5
+  #define DIRECTION_PIN 7
 #endif
 
 

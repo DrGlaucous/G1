@@ -2,6 +2,7 @@
 #include <Arduino.h>
 #include <Servo.h>
 #include <SCoop.h>
+#include "Configuration.h"
 
 //typedef bool boolean;
 
@@ -51,20 +52,63 @@ bool ArdDigitalRead(int pinNumber)
 //body functions common to both backends:
 void SelectFireTimeout(void)
 {
-  if ( proceed == HIGH)
+  if (proceed == true)//i forgot ATM
   {
-    if (clicked == HIGH)
+    if (clicked == true)//a toggle varibale used to "hold" the trigger down until the select fire is completed
     {
-      timer += 1;//( _ABVAR_4_timer + 1 ) ;
+      timer += 1;
       sleep(10);
     }
-    if (timer >= ( ( ( pow(delayCurve ,6 ) / AnalogRead(1) ) / 10 ) ) ))
+    if (timer >= ((pow(delayCurve ,6 ) / ArdAnalogRead(1)) / 10 ) )
     {
-      clicked = LOW ;
-      timer = 0 ;
-      noTone(5);
+      clicked = LOW;
+      timer = 0;
+      noTone(STEP_PIN);
+    }
+  }  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void ModeSelect(void)
+{
+
+  if (( ( ArdAnalogRead(0) ) < ( 250 ) ))
+  {
+    fullAuto();
+  }
+  else
+  {
+    if (( ( ArdAnalogRead(0) ) < ( 500 ) ))
+    {
+      FireType = 3 ;
+      delayCurve = 8.9 ;
+      selectFire();
+    }
+    else
+    {
+      if (( ( ArdAnalogRead(0) ) < ( 750 ) ))
+      {
+        FireType = 2 ;
+        delayCurve = 8.0 ;
+        selectFire();
+      }
+      else
+      {
+        FireType = 1 ;
+        delayCurve = 7.4 ;
+        selectFire();
+      }
     }
   }
   
-  
-  }
+}

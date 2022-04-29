@@ -36,7 +36,7 @@ void setup()
   
   //microstep = 16 ;//this will be a defined constant
 
-  StartupLock = HIGH ;
+  StartupLock = HIGH;
 
   ArdDigitalWrite(6, HIGH);
 
@@ -62,42 +62,27 @@ void loop()
 }
 
 
-//motor timeout prevention
+//prevents motor stalling indefinitely
 defineTaskLoop(scoopTask1)
 {
   SelectFireTimeout();
+}
+
+//
+defineTaskLoop(scoopTask2)
+{
+    HandleESC();
+}
+
+//count number of spins (only initialized with select fire)
+defineTaskLoop(scoopTask3)
+{
+    TallySpins();
 }
 
 
 //Mode Select
 defineTaskLoop(scoopTask5)
 {
-  if (( ( ArdAnalogRead(0) ) < ( 250 ) ))
-  {
-    fullAuto();
-  }
-  else
-  {
-    if (( ( ArdAnalogRead(0) ) < ( 500 ) ))
-    {
-      FireType = 3 ;
-      delayCurve = 8.9 ;
-      selectFire();
-    }
-    else
-    {
-      if (( ( ArdAnalogRead(0) ) < ( 750 ) ))
-      {
-        FireType = 2 ;
-        delayCurve = 8.0 ;
-        selectFire();
-      }
-      else
-      {
-        FireType = 1 ;
-        delayCurve = 7.4 ;
-        selectFire();
-      }
-    }
-  }
+    ModeSelect();
 }

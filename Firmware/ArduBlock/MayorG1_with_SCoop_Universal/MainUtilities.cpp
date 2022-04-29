@@ -72,43 +72,95 @@ void SelectFireTimeout(void)
 
 
 
-
-
-
-
-
-
-
 void ModeSelect(void)
 {
 
-  if (( ( ArdAnalogRead(0) ) < ( 250 ) ))
+  if (ArdAnalogRead(PUSH_SPEED_PIN) < 250)
   {
-    fullAuto();
+    //fullAuto();
   }
   else
   {
-    if (( ( ArdAnalogRead(0) ) < ( 500 ) ))
+    if (ArdAnalogRead(PUSH_SPEED_PIN) < 500)
     {
       FireType = 3 ;
       delayCurve = 8.9 ;
-      selectFire();
+      //selectFire();
     }
     else
     {
-      if (( ( ArdAnalogRead(0) ) < ( 750 ) ))
+      if (ArdAnalogRead(PUSH_SPEED_PIN) < 750)
       {
         FireType = 2 ;
         delayCurve = 8.0 ;
-        selectFire();
+        //selectFire();
       }
       else
       {
         FireType = 1 ;
         delayCurve = 7.4 ;
-        selectFire();
+        //selectFire();
       }
     }
   }
   
+}
+
+//Counts each time the pusher is in the back position
+void TallySpins(void)
+{
+    if (((clicked) == (HIGH)))
+    {
+        if (ArdDigitalRead(ENDSTOP_PIN) == LOW && done == LOW)
+        {
+            SpinCount += 1; //(SpinCount + 1);
+            done = HIGH;//prevents more than one trigger per rotation
+        }
+        if (ArdDigitalRead(ENDSTOP_PIN) == HIGH)
+        {
+            done = LOW;
+        }
+    }
+    else
+    {
+        done = HIGH;
+        SpinCount = 0;
+    }
+}
+
+
+void HandleESC(void)
+{
+    if (StartupLock == LOW)//the only function that needs the startup lock (because this needs to wait until the ESC is finished arming before it can set it)
+    {
+        if (ArdDigitalRead(ENDSTOP_PIN) == LOW || clicked == HIGH)//endstop and virtual trigge
+        {
+            if (((delayToggle) == (HIGH)))
+            {
+                servoDelay = (map(ArdAnalogRead(SHOOT_POWER_PIN), 0, 1023, 0, 100) - map(servoSpeed, 37, 180, 0, 100));
+                delayToggle = LOW;
+            }
+            servoSpeed = map(ArdAnalogRead(SHOOT_POWER_PIN), 0, 1023, 37, 180);
+            if (servoDelay <= 0)
+            {
+                proceed = HIGH;
+            }
+            else
+            {
+                servoDelay -= 1;// (servoDelay - 1);
+                proceed = LOW;
+            }
+        }
+        else
+        {
+            if (servoSpeed > 37)
+            {
+                servoSpeed -= 1;// (servoSpeed - 1);
+            }
+            delayToggle = HIGH;
+            proceed = LOW;
+        }
+        servo_pin.write(servoSpeed);
+        sleep(10);
+    }
 }

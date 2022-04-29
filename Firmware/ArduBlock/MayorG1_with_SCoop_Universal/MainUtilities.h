@@ -26,3 +26,9 @@ void ArdDigitalWrite(int pinNumber, bool tstatus);
 int ArdAnalogRead(int pinNumber);
 bool ArdDigitalRead(int pinNumber);
 void SelectFireTimeout(void);
+void ModeSelect(void);
+void HandleESC(void);
+void TallySpins(void);
+
+
+

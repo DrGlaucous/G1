@@ -1,10 +1,16 @@
-#include <Arduino.h>
-#include <Servo.h>
-#include <SCoop.h>
-#include "MainUtilities.h"
-#include "Main.cpp"
+//There is nothing important in this file.
+//Please refer to the Main.cpp file for the actual program
 
 
+
+
+//#include <Arduino.h>
+//#include <Servo.h>
+//#include <SCoop.h>
+//#include "MainUtilities.h"
+//#include "Main.cpp"
+
+/*
 int microstep = 0 ;
 bool StartupLock= false ;
 void ArdDigitalWrite(int pinNumber, boolean status)
@@ -46,7 +52,7 @@ bool gatekeeper= false ;
 void fullAuto();
 void selectFire();
 void Home();
-/*
+
 void setup()
 {
   servo_pin.attach(3);
@@ -87,7 +93,7 @@ void loop()
   mySCoop.sleep(1000);
   yield();
 }
-*/
+
 defineTaskLoop(scoopTask1)
 {
   if (( ( proceed ) == ( HIGH ) ))
@@ -299,3 +305,4 @@ void fullAuto()
     Home();
   }
 }
+*/

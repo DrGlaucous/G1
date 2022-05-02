@@ -80,7 +80,7 @@ defineTaskLoop(scoopTask1)
 {
   if (( ( _ABVAR_1_StartupLock ) == ( LOW ) ))
   {
-    if (( ( ( __ardublockDigitalRead(2) ) == ( LOW ) ) || ( ( _ABVAR_6_click ) == ( HIGH ) ) ))
+    if (( ( ( ArdDigitalRead(TRIGGER_PIN) ) == ( LOW ) ) || ( ( _ABVAR_6_click ) == ( HIGH ) ) ))
     {
       if (( ( _ABVAR_7_delayToggle ) == ( HIGH ) ))
       {
@@ -120,12 +120,12 @@ defineTaskLoop(scoopTask3)
 {
   if (( ( _ABVAR_6_click ) == ( HIGH ) ))
   {
-    if (( ( ( __ardublockDigitalRead(6) ) == ( LOW ) ) && ( ( _ABVAR_10_done ) == ( LOW ) ) ))
+    if (( ( ( ArdDigitalRead(ENDSTOP_PIN) ) == ( LOW ) ) && ( ( _ABVAR_10_done ) == ( LOW ) ) ))
     {
       _ABVAR_2_SpinCount = ( _ABVAR_2_SpinCount + 1 ) ;
       _ABVAR_10_done = HIGH ;
     }
-    if (( ( __ardublockDigitalRead(6) ) == ( HIGH ) ))
+    if (( ( ArdDigitalRead(ENDSTOP_PIN) ) == ( HIGH ) ))
     {
       _ABVAR_10_done = LOW ;
     }
@@ -190,7 +190,7 @@ defineTaskLoop(scoopTask5)
 
 void selectFire()
 {
-  if (( ( __ardublockDigitalRead(2) ) == ( LOW ) ))
+  if (( ( ArdDigitalRead(TRIGGER_PIN) ) == ( LOW ) ))
   {
     _ABVAR_12_hitBack = false ;
     _ABVAR_13_leftNright = false ;
@@ -231,11 +231,11 @@ void selectFire()
 
 void fullAuto()
 {
-  if (( ( __ardublockDigitalRead(2) ) == ( LOW ) ))
+  if (( ( ArdDigitalRead(TRIGGER_PIN) ) == ( LOW ) ))
   {
     _ABVAR_12_hitBack = false ;
     _ABVAR_13_leftNright = false ;
-    while ( ( ( __ardublockDigitalRead(2) ) == ( LOW ) ) )
+    while ( ( ( ArdDigitalRead(TRIGGER_PIN) ) == ( LOW ) ) )
     {
       mySCoop.sleep(1);
       if (( ( _ABVAR_9_proceed ) == ( HIGH ) ))
@@ -255,7 +255,7 @@ void fullAuto()
 
 void retract()
 {
-  if (( ( __ardublockDigitalRead(6) ) == ( HIGH ) ))
+  if (( ( ArdDigitalRead(ENDSTOP_PIN) ) == ( HIGH ) ))
   {
     __ardublockDigitalWrite(13, HIGH);
     if (( ( _ABVAR_12_hitBack ) == ( false ) ))
@@ -296,7 +296,7 @@ void pushSpeed()
 
 void Home()
 {
-  if (( ( __ardublockDigitalRead(6) ) == ( HIGH ) ))
+  if (( ( ArdDigitalRead(ENDSTOP_PIN) ) == ( HIGH ) ))
   {
     __ardublockDigitalWrite(8, LOW);
     tone(5, ( 600 * _ABVAR_16_microstep ));

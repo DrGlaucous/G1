@@ -29,27 +29,28 @@
 
 //analog input potentiometer that controls the speed of the dart pusher
 #define PUSH_SPEED_PIN 0
+
 //for full auto/select fire/etc
 #define PUSH_MODE_PIN 1
+
 //how hard the blaster shoots
 #define SHOOT_POWER_PIN 2
 
+//controls the speed of the motor, the same for both backends
+#define STEP_PIN 5
 
+//////Configuration for the brushed backend//////
+#define HPIN_1 8//the 2 pins that control the H-bridge direction (it isn't particualrly important which is which)
+#define HPIN_2 7
 
-#if BACKEND_TYPE == BRUSHED_BACKEND
-	#define STEP_PIN 5//controls the speed of the motor
-	#define HPIN_1 8//the 2 pins that control the H-bridge direction (it isn't particualrly important which is which)
-	#define HPIN_2 7
-#elif BACKEND_TYPE == STEPPER_BACKEND
+//////Configuration for the stepper backend//////
+//mictostep setting that the stepper driver is set to
+#define MICROSTEP 16
+//pin assignments
+#define STEP_PIN 5
+#define DIRECTION_PIN 7
+#define ENABLE_PIN 8
 
-	//mictostep setting that the stepper driver is set to
-	#define MICROSTEP 16
-	//pin assignments
-	#define STEP_PIN 5
-	#define DIRECTION_PIN 7
-	#define ENABLE_PIN 8
-
-#endif
 
 
 //for debugging, allows for serial feedback of certain values

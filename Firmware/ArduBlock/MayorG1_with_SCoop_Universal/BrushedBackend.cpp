@@ -2,6 +2,8 @@
 #include "Configuration.h"
 #include "MainUtilities.h"
 
+//There may be a better way to disable this section when not used:
+#if BACKEND_TYPE == BRUSHED_BACKEND
 
 //pulls the pusher motor back after firing is finished
 void retract()
@@ -132,7 +134,7 @@ void selectFire()
 }
 
 
-
+#endif
 
 
 

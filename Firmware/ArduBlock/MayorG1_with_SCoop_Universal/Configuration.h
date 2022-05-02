@@ -6,16 +6,20 @@
 #define STEPPER_BACKEND 1
 #define BRUSHED_BACKEND 2
 //choose what type of backend is being used for the pusher motor
-#define BACKEND_TYPE BRUSHED_BACKEND
+#define BACKEND_TYPE STEPPER_BACKEND
 
 
 //tell the board to use internal pullup resistors
 //comment this out if not needed
-#define INTERNAL_PULLUPS
+//#define INTERNAL_PULLUPS
+
+//tell the board what state is "not pressed"
+//if pullup resistors are used, then it should be 0 and the switch should "ground" it
+#define ON_STATE 1
 
 //pins for the endstop and trigger
 #define TRIGGER_PIN 2
-#define ENDSTOP_PIN 4
+#define ENDSTOP_PIN 6
 //the state of the trigger when it is pressed
 //if the input is low when the button is PUSHED, this is 0 (if internal pullups are enabled, leave it at 0)
 #define CLOSED_TRIGGER 0
@@ -33,18 +37,22 @@
 
 
 #if BACKEND_TYPE == BRUSHED_BACKEND
-  #define DC_PIN
-  #define STEP_PIN 5
-  #define OTHER_SETTINGS//filler for now
+	#define STEP_PIN 5//controls the speed of the motor
+	#define HPIN_1 8//the 2 pins that control the H-bridge direction (it isn't particualrly important which is which)
+	#define HPIN_2 7
 #elif BACKEND_TYPE == STEPPER_BACKEND
 
-  //mictostep setting that the stepper driver is set to
-  #define MICROSTEP 16
-  //pin assignments
-  #define STEP_PIN 5
-  #define DIRECTION_PIN 7
+	//mictostep setting that the stepper driver is set to
+	#define MICROSTEP 16
+	//pin assignments
+	#define STEP_PIN 5
+	#define DIRECTION_PIN 7
+	#define ENABLE_PIN 8
+
 #endif
 
 
 //for debugging, allows for serial feedback of certain values
-#define SERIAL_OUTPUT
+//#define SERIAL_OUTPUT
+//lights the status LED for certain operations (debug)
+#define STATUS_LED 13

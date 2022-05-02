@@ -1,90 +1,72 @@
-//There is nothing important in this file.
-//Please refer to the Main.cpp file for the actual program
+//Nothing important here: see Main.cpp
 
 
-
-
-//#include <Arduino.h>
 //#include <Servo.h>
 //#include <SCoop.h>
-//#include "MainUtilities.h"
-//#include "Main.cpp"
-
 /*
-int microstep = 0 ;
-bool StartupLock= false ;
-void ArdDigitalWrite(int pinNumber, boolean status)
-{
-  pinMode(pinNumber, OUTPUT);
-  digitalWrite(pinNumber, status);
-}
-
-int SpinCount = 0 ;
-int timer = 0 ;
-double delayCurve = 0.0 ;
-//Servo servo_pin;
-int servoSpeed = 0 ;
-bool proceed= false ;
-bool clicked= false ;
-int ArdAnalogRead(int pinNumber)
-{
-  pinMode(pinNumber, INPUT);
-  return analogRead(pinNumber);
-}
-
-
-boolean ArdDigitalRead(int pinNumber)
+bool _ABVAR_1_StartupLock= false ;
+int _ABVAR_2_SpinCount = 0 ;
+int _ABVAR_3_timer = 0 ;
+double _ABVAR_4_delayCurve = 0.0 ;
+Servo servo_pin_3;
+int _ABVAR_5_servoSpeed = 0 ;
+boolean __ardublockDigitalRead(int pinNumber)
 {
   pinMode(pinNumber, INPUT);
   return digitalRead(pinNumber);
 }
 
 
-bool delayToggle= false ;
-int servoDelay = 0 ;
-bool done= false ;
-bool initialSet= false ;
-double PushSpeed = 0.0 ;
-double Accel = 0.0 ;
-int FireType = 0 ;
-bool gatekeeper= false ;
+bool _ABVAR_6_click= false ;
+bool _ABVAR_7_delayToggle= false ;
+int _ABVAR_8_servoDelay = 0 ;
+int __ardublockAnalogRead(int pinNumber)
+{
+  pinMode(pinNumber, INPUT);
+  return analogRead(pinNumber);
+}
+
+
+bool _ABVAR_9_proceed= false ;
+bool _ABVAR_10_done= false ;
+void __ardublockDigitalWrite(int pinNumber, boolean status)
+{
+  pinMode(pinNumber, OUTPUT);
+  digitalWrite(pinNumber, status);
+}
+
+int _ABVAR_11_FireType = 0 ;
+bool _ABVAR_12_hitBack= false ;
+bool _ABVAR_13_leftNright= false ;
+bool _ABVAR_14_gatekeeper= false ;
+int _ABVAR_15_read = 0 ;
+int _ABVAR_16_microstep = 0 ;
 
 void fullAuto();
+void retract();
 void selectFire();
+void pushSpeed();
 void Home();
 
 void setup()
 {
-  servo_pin.attach(3);
-  pinMode( 2 , INPUT_PULLUP);
-
-  pinMode( 4 , INPUT_PULLUP);
-
+  servo_pin_3.attach(3);
   mySCoop.start();
-  Serial.begin(9600);
-  microstep = 16 ;
+  _ABVAR_1_StartupLock = HIGH ;
 
-  StartupLock = HIGH ;
+  _ABVAR_2_SpinCount = 0 ;
 
-  ArdDigitalWrite(6, HIGH);
+  _ABVAR_3_timer = 0 ;
 
-  ArdDigitalWrite(7, HIGH);
+  _ABVAR_4_delayCurve = 10.0 ;
 
-  SpinCount = 0 ;
+  servo_pin_3.write( 37 );
 
-  timer = 0 ;
+  _ABVAR_5_servoSpeed = 37 ;
 
-  delayCurve = 10.0 ;
+  delay( 3000 );
 
-  servo_pin.write( 37 );
-
-  servoSpeed = 37 ;
-
-
-
-  delay( 5750 );
-
-  StartupLock = LOW ;
+  _ABVAR_1_StartupLock = LOW ;
 
 }
 
@@ -96,213 +78,233 @@ void loop()
 
 defineTaskLoop(scoopTask1)
 {
-  if (( ( proceed ) == ( HIGH ) ))
+  if (( ( _ABVAR_1_StartupLock ) == ( LOW ) ))
   {
-    if (( ( clicked ) == ( HIGH ) ))
+    if (( ( ( __ardublockDigitalRead(2) ) == ( LOW ) ) || ( ( _ABVAR_6_click ) == ( HIGH ) ) ))
     {
-      timer = ( timer + 1 ) ;
-      sleep(10);
+      if (( ( _ABVAR_7_delayToggle ) == ( HIGH ) ))
+      {
+        _ABVAR_8_servoDelay = ( map ( __ardublockAnalogRead(2) , 0 , 1023 , 0 , 100 )  - map ( _ABVAR_5_servoSpeed , 37 , 180 , 0 , 100 )  ) ;
+        _ABVAR_7_delayToggle = LOW ;
+      }
+      _ABVAR_5_servoSpeed = map ( __ardublockAnalogRead(2) , 0 , 1023 , 37 , 180 )  ;
+      if (( ( _ABVAR_8_servoDelay ) <= ( 0 ) ))
+      {
+        _ABVAR_9_proceed = HIGH ;
+      }
+      else
+      {
+        _ABVAR_8_servoDelay = ( _ABVAR_8_servoDelay - 1 ) ;
+        _ABVAR_9_proceed = LOW ;
+      }
     }
-    if (( ( timer ) >= ( ( ( pow( delayCurve ,6 ) / ArdAnalogRead(1) ) / 10 ) ) ))
+    else
     {
-      clicked = LOW ;
-      timer = 0 ;
-      noTone(5);
+      if (( ( _ABVAR_5_servoSpeed ) > ( 37 ) ))
+      {
+        _ABVAR_5_servoSpeed = ( _ABVAR_5_servoSpeed - 1 ) ;
+      }
+      _ABVAR_7_delayToggle = HIGH ;
+      _ABVAR_9_proceed = LOW ;
     }
+    servo_pin_3.write( _ABVAR_5_servoSpeed );
+    sleep(10);
   }
 }
 
 defineTaskLoop(scoopTask2)
 {
-  if (( ( StartupLock ) == ( LOW ) ))
-  {
-    if (( ( ( ArdDigitalRead(4) ) == ( LOW ) ) || ( ( clicked ) == ( HIGH ) ) ))
-    {
-      if (( ( delayToggle ) == ( HIGH ) ))
-      {
-        servoDelay = ( map ( ArdAnalogRead(2) , 0 , 1023 , 0 , 100 )  - map ( servoSpeed , 37 , 180 , 0 , 100 )  ) ;
-        delayToggle = LOW ;
-      }
-      servoSpeed = map ( ArdAnalogRead(2) , 0 , 1023 , 37 , 180 )  ;
-      if (( ( servoDelay ) <= ( 0 ) ))
-      {
-        proceed = HIGH ;
-      }
-      else
-      {
-        servoDelay = ( servoDelay - 1 ) ;
-        proceed = LOW ;
-      }
-    }
-    else
-    {
-      if (( ( servoSpeed ) > ( 37 ) ))
-      {
-        servoSpeed = ( servoSpeed - 1 ) ;
-      }
-      delayToggle = HIGH ;
-      proceed = LOW ;
-    }
-    servo_pin.write( servoSpeed );
-    sleep(10);
-  }
 }
 
 defineTaskLoop(scoopTask3)
 {
-  if (( ( clicked ) == ( HIGH ) ))
+  if (( ( _ABVAR_6_click ) == ( HIGH ) ))
   {
-    if (( ( ( ArdDigitalRead(2) ) == ( LOW ) ) && ( ( done ) == ( LOW ) ) ))
+    if (( ( ( __ardublockDigitalRead(6) ) == ( LOW ) ) && ( ( _ABVAR_10_done ) == ( LOW ) ) ))
     {
-      SpinCount = ( SpinCount + 1 ) ;
-      done = HIGH ;
+      _ABVAR_2_SpinCount = ( _ABVAR_2_SpinCount + 1 ) ;
+      _ABVAR_10_done = HIGH ;
     }
-    if (( ( ArdDigitalRead(2) ) == ( HIGH ) ))
+    if (( ( __ardublockDigitalRead(6) ) == ( HIGH ) ))
     {
-      done = LOW ;
+      _ABVAR_10_done = LOW ;
     }
   }
   else
   {
-    done = HIGH ;
-    SpinCount = 0 ;
+    _ABVAR_10_done = HIGH ;
+    _ABVAR_2_SpinCount = 0 ;
   }
 }
 
 defineTaskLoop(scoopTask4)
 {
-  if (( ( ( ArdDigitalRead(4) ) == ( LOW ) ) || ( ( clicked ) == ( HIGH ) ) ))
+  if (( ( _ABVAR_9_proceed ) == ( HIGH ) ))
   {
-    if (( ( proceed ) == ( HIGH ) ))
+    if (( ( _ABVAR_6_click ) == ( HIGH ) ))
     {
-      if (( ( initialSet ) == ( LOW ) ))
-      {
-        PushSpeed = ( map ( ArdAnalogRead(1) , 0 , 1000 , 0 , ( 2000 * microstep ) )  - ( map ( ArdAnalogRead(1) , 0 , 1000 , 0 , ( 2000 * microstep ) )  * 0.2 ) ) ;
-        Accel = ( map ( ArdAnalogRead(1) , 0 , 1000 , 0 , ( 2000 * microstep ) )  - ( map ( ArdAnalogRead(1) , 0 , 1000 , 0 , ( 2000 * microstep ) )  * 0.8 ) ) ;
-        initialSet = HIGH ;
-      }
-      if (( ( PushSpeed ) < ( map ( ArdAnalogRead(1) , 0 , 1000 , 0 , ( 2000 * microstep ) )  ) ))
-      {
-        PushSpeed = ( PushSpeed + ( Accel / 40 ) ) ;
-        sleep(10);
-      }
+      _ABVAR_3_timer = ( _ABVAR_3_timer + 1 ) ;
+      sleep(10);
     }
-  }
-  else
-  {
-    initialSet = LOW ;
+    if (( ( _ABVAR_3_timer ) >= ( ( ( pow( _ABVAR_4_delayCurve ,6 ) / __ardublockAnalogRead(0) ) / 10 ) ) ))
+    {
+      _ABVAR_6_click = LOW ;
+      _ABVAR_3_timer = 0 ;
+      __ardublockDigitalWrite(8, LOW);
+      __ardublockDigitalWrite(7, LOW);
+    }
   }
 }
 
 defineTaskLoop(scoopTask5)
 {
-  if (( ( ArdAnalogRead(0) ) < ( 250 ) ))
+  if (( ( __ardublockAnalogRead(1) ) < ( 250 ) ))
   {
     fullAuto();
   }
   else
   {
-    if (( ( ArdAnalogRead(0) ) < ( 500 ) ))
+    if (( ( __ardublockAnalogRead(1) ) < ( 500 ) ))
     {
-      FireType = 3 ;
-      delayCurve = 8.9 ;
+      _ABVAR_11_FireType = 3 ;
+      _ABVAR_4_delayCurve = 8.9 ;
       selectFire();
     }
     else
     {
-      if (( ( ArdAnalogRead(0) ) < ( 750 ) ))
+      if (( ( __ardublockAnalogRead(1) ) < ( 750 ) ))
       {
-        FireType = 2 ;
-        delayCurve = 8.0 ;
+        _ABVAR_11_FireType = 2 ;
+        _ABVAR_4_delayCurve = 8.0 ;
         selectFire();
       }
       else
       {
-        FireType = 1 ;
-        delayCurve = 7.4 ;
+        _ABVAR_11_FireType = 1 ;
+        _ABVAR_4_delayCurve = 7.4 ;
         selectFire();
       }
     }
-  }
-}
-
-void Home()
-{
-  if (( ( ArdDigitalRead(2) ) == ( HIGH ) ))
-  {
-    ArdDigitalWrite(7, LOW);
-    tone(5, ( 600 * microstep ));
-  }
-  else
-  {
-    noTone(5);
-    ArdDigitalWrite(7, HIGH);
   }
 }
 
 void selectFire()
 {
-  if (( ( ArdDigitalRead(4) ) == ( LOW ) ))
+  if (( ( __ardublockDigitalRead(2) ) == ( LOW ) ))
   {
-    if (( ( gatekeeper ) == ( LOW ) ))
+    _ABVAR_12_hitBack = false ;
+    _ABVAR_13_leftNright = false ;
+    if (( ( _ABVAR_14_gatekeeper ) == ( LOW ) ))
     {
-      clicked = HIGH ;
-      ArdDigitalWrite(7, LOW);
-      while ( ( ( clicked ) == ( HIGH ) ) )
+      _ABVAR_6_click = HIGH ;
+      __ardublockDigitalWrite(8, LOW);
+      while ( ( ( _ABVAR_6_click ) == ( HIGH ) ) )
       {
         mySCoop.sleep(1);
-        if (( ( proceed ) == ( HIGH ) ))
+        if (( ( _ABVAR_9_proceed ) == ( HIGH ) ))
         {
-          if (( ( SpinCount ) < ( FireType ) ))
+          if (( ( _ABVAR_2_SpinCount ) < ( _ABVAR_11_FireType ) ))
           {
-            tone(5, PushSpeed);
+            pushSpeed();
+            __ardublockDigitalWrite(8, HIGH);
+            __ardublockDigitalWrite(7, LOW);
           }
           else
           {
-            clicked = LOW ;
-            noTone(5);
+            _ABVAR_6_click = LOW ;
+            __ardublockDigitalWrite(8, LOW);
+            __ardublockDigitalWrite(7, LOW);
           }
         }
       }
 
-      Serial.print("timer:");
-      Serial.print(timer);
-      Serial.println();
-      Serial.print("potentiometer:");
-      Serial.print(ArdAnalogRead(1));
-      Serial.println();
-      Serial.print("mode:");
-      Serial.print(ArdAnalogRead(0));
-      Serial.println();
-      gatekeeper = HIGH ;
-      timer = 0 ;
+      _ABVAR_14_gatekeeper = HIGH ;
+      _ABVAR_3_timer = 0 ;
     }
   }
   else
   {
-    gatekeeper = LOW ;
+    _ABVAR_14_gatekeeper = LOW ;
   }
-  Home();
+  retract();
 }
 
 void fullAuto()
 {
-  if (( ( ArdDigitalRead(4) ) == ( LOW ) ))
+  if (( ( __ardublockDigitalRead(2) ) == ( LOW ) ))
   {
-    ArdDigitalWrite(7, LOW);
-    while ( ( ( ArdDigitalRead(4) ) == ( LOW ) ) )
+    _ABVAR_12_hitBack = false ;
+    _ABVAR_13_leftNright = false ;
+    while ( ( ( __ardublockDigitalRead(2) ) == ( LOW ) ) )
     {
       mySCoop.sleep(1);
-      if (( ( proceed ) == ( HIGH ) ))
+      if (( ( _ABVAR_9_proceed ) == ( HIGH ) ))
       {
-        tone(5, PushSpeed);
+        pushSpeed();
+        __ardublockDigitalWrite(8, HIGH);
+        __ardublockDigitalWrite(7, LOW);
       }
     }
 
   }
   else
   {
-    Home();
+    retract();
+  }
+}
+
+void retract()
+{
+  if (( ( __ardublockDigitalRead(6) ) == ( HIGH ) ))
+  {
+    __ardublockDigitalWrite(13, HIGH);
+    if (( ( _ABVAR_12_hitBack ) == ( false ) ))
+    {
+      _ABVAR_12_hitBack = true ;
+    }
+    __ardublockDigitalWrite(8, HIGH);
+    __ardublockDigitalWrite(7, HIGH);
+  }
+  else
+  {
+    __ardublockDigitalWrite(13, LOW);
+    if (( ( _ABVAR_12_hitBack ) == ( true ) ))
+    {
+      if (( ( _ABVAR_13_leftNright ) == ( true ) ))
+      {
+        analogWrite(5 , 150);
+        __ardublockDigitalWrite(8, HIGH);
+        __ardublockDigitalWrite(7, LOW);
+        _ABVAR_13_leftNright = false ;
+      }
+      else
+      {
+        __ardublockDigitalWrite(8, LOW);
+        __ardublockDigitalWrite(7, HIGH);
+        _ABVAR_13_leftNright = true ;
+      }
+      _ABVAR_12_hitBack = false ;
+    }
+  }
+}
+
+void pushSpeed()
+{
+  _ABVAR_15_read = map ( __ardublockAnalogRead(0) , 0 , 1023 , 0 , 255 )  ;
+  analogWrite(5 , _ABVAR_15_read);
+}
+
+void Home()
+{
+  if (( ( __ardublockDigitalRead(6) ) == ( HIGH ) ))
+  {
+    __ardublockDigitalWrite(8, LOW);
+    tone(5, ( 600 * _ABVAR_16_microstep ));
+  }
+  else
+  {
+    noTone(5);
+    __ardublockDigitalWrite(8, HIGH);
   }
 }
 */

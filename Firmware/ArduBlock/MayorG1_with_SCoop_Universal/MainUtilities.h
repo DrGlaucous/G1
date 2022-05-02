@@ -1,7 +1,6 @@
 #pragma once
 #include <Servo.h>
 
-extern int microstep;
 extern bool StartupLock;
 extern int SpinCount;
 extern int timer;
@@ -14,9 +13,13 @@ extern int servoDelay;
 extern bool done;
 extern bool initialSet;
 extern double PushSpeed;
-extern double Acell;
+extern double Accel;
 extern int FireType;
 extern bool gatekeeper;
+#if BACKEND_TYPE == BRUSHED_BACKEND
+	extern bool hitBack;
+	extern bool leftNright;
+#endif
 extern Servo servo_pin;
 
 

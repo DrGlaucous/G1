@@ -7,26 +7,27 @@
 
 void retract()
 {
-    if (ArdDigitalRead(ENDSTOP_PIN) == HIGH)
+    if (ArdDigitalRead(ENDSTOP_PIN) == true)
     {
-        ArdDigitalWrite(ENABLE_PIN, LOW);
+        ArdDigitalWrite(ENABLE_PIN, false);
         tone(5, 600 * MICROSTEP);
     }
     else
     {
         noTone(5);
-        ArdDigitalWrite(ENABLE_PIN, HIGH);
+        ArdDigitalWrite(ENABLE_PIN, true);
     }
 }
 
 
 void fullAuto()
 {
-    if (ArdDigitalRead(TRIGGER_PIN) == LOW)
+    if (ArdDigitalRead(TRIGGER_PIN) == false)
     {
         //there was a while loop here, but it was eliminated
 
-        ArdDigitalWrite(ENABLE_PIN, LOW);
+        ArdDigitalWrite(ENABLE_PIN, false);
+
         if (proceed == true)
         {
             tone(STEP_PIN, PushSpeed);
@@ -42,19 +43,19 @@ void fullAuto()
 
 void selectFire()
 {
-    if (ArdDigitalRead(TRIGGER_PIN) == ON_STATE && gatekeeper == LOW)
+    if (ArdDigitalRead(TRIGGER_PIN) == ON_STATE && gatekeeper == false)
     {
 
-        clicked = HIGH;
-        ArdDigitalWrite(ENABLE_PIN, LOW);
-        gatekeeper = HIGH;
+        clicked = true;
+        ArdDigitalWrite(ENABLE_PIN, false);
+        gatekeeper = true;
         timer = 0;
 
     }
-    else if (clicked == HIGH)//counts the rotations
+    else if (clicked == true)//counts the rotations
     {
 
-        if (proceed == HIGH)
+        if (proceed == true)
         {
             if (SpinCount < FireType)
             {
@@ -62,7 +63,7 @@ void selectFire()
             }
             else
             {
-                clicked = LOW;
+                clicked = false;
                 noTone(STEP_PIN);
             }
         }
@@ -73,7 +74,7 @@ void selectFire()
     }
     else
     {
-        gatekeeper = LOW;
+        gatekeeper = false;
     }
     retract();
 }

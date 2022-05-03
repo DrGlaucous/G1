@@ -29,15 +29,15 @@ void setup()
 #endif
     //microstep = 16 ;//this will be a defined constant
 
-    StartupLock = HIGH;
+    StartupLock = true;
 
     //same operation, but with different defined constants (it may not actually be needed for the brushed backend, though)
 #if BACKEND_TYPE == BRUSHED_BACKEND
-    ArdDigitalWrite(HPIN_1, HIGH);
-    ArdDigitalWrite(HPIN_2, HIGH);
+    ArdDigitalWrite(HPIN_1, true);
+    ArdDigitalWrite(HPIN_2, true);
 #elif BACKEND_TYPE == STEPPER_BACKEND
-    ArdDigitalWrite(ENABLE_PIN, HIGH);
-    ArdDigitalWrite(DIRECTION_PIN, HIGH);
+    ArdDigitalWrite(ENABLE_PIN, true);
+    ArdDigitalWrite(DIRECTION_PIN, true);
 #endif
     
     
@@ -50,7 +50,7 @@ void setup()
     servoSpeed = 37;
     servo_pin.write( servoSpeed );
     delay( 5750 );
-    StartupLock = LOW ;
+    StartupLock = false ;
 
 }
 
@@ -87,19 +87,5 @@ defineTaskLoop(scoopTask5)
     ModeSelect();
 }
 
-//debug
-defineTaskLoop(scoopTask6)
-{
-    if (ArdAnalogRead(PUSH_MODE_PIN) < 250)
-    {
-        //ArdDigitalWrite(STATUS_LED, 1);
-    }
-    else
-    {
-        //ArdDigitalWrite(STATUS_LED, 0);
-    }
-        
-        
-}
 
 

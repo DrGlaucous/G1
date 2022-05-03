@@ -78,7 +78,7 @@ void SelectFireTimeout(void)
     }
     if (timer >= ((pow(delayCurve ,6 ) / ArdAnalogRead(PUSH_MODE_PIN)) / 10 ) )
     {
-      clicked = LOW;
+      clicked = false;
       timer = 0;
       noTone(STEP_PIN);
     }
@@ -119,21 +119,21 @@ void ModeSelect(void)
 //Counts each time the pusher is in the back position
 void TallySpins(void)
 {
-    if (clicked == HIGH)
+    if (clicked == true)
     {
-        if (ArdDigitalRead(ENDSTOP_PIN) == ON_STATE && done == LOW)
+        if (ArdDigitalRead(ENDSTOP_PIN) == ON_STATE && done == false)
         {
             SpinCount += 1; //(SpinCount + 1);
-            done = HIGH;//prevents more than one trigger per rotation
+            done = true;//prevents more than one trigger per rotation
         }
         if (ArdDigitalRead(ENDSTOP_PIN) != ON_STATE)
         {
-            done = LOW;
+            done = false;
         }
     }
     else
     {
-        done = HIGH;
+        done = true;
         SpinCount = 0;
     }
 }
@@ -141,15 +141,23 @@ void TallySpins(void)
 //handle the flywheels
 void HandleESC(void)
 {
-    if (StartupLock == LOW)//the only function that needs the startup lock (because this needs to wait until the ESC is finished arming before it can set it)
+    if (StartupLock == false)//the only function that needs the startup lock (because this needs to wait until the ESC is finished arming before it can set it)
     {
-        if (ArdDigitalRead(TRIGGER_PIN) == ON_STATE || clicked == HIGH)//endstop and virtual trigger
+        if (ArdDigitalRead(TRIGGER_PIN) == ON_STATE || clicked == true)//endstop and virtual trigger
         {
-            if (delayToggle == HIGH)//ensures that the delay is set only 1x per trigger event
+            if (delayToggle == true)//ensures that the delay is set only 1x per trigger event
             {
-                servoDelay = (map(ArdAnalogRead(SHOOT_POWER_PIN), 0, 1023, 0, 100) - map(servoSpeed, 37, 180, 0, 100));
-                delayToggle = LOW;
+
+                //checks the difference between current servo speed and what the current speed setting is
+                //also prevents bypassing the startup delay by double-pressing the trigger (since the blaster has no way of telling if its flywheels actually reached speed or not)
+                //to increase or decrease delay, the 2nd mapped value should be increased or decreased, respectively
+                servoDelay = (map(ArdAnalogRead(SHOOT_POWER_PIN), 0, 1023, 0, SPINUP_DELAY) - map(servoSpeed, 37, 180, 0, SPINUP_DELAY) + (servoDelay > 0 ? servoDelay : 0));//add any previous delay back
+                     
+                delayToggle = false;
             }
+
+
+
             servoSpeed = map(ArdAnalogRead(SHOOT_POWER_PIN), 0, 1023, 37, 180);
             if (servoDelay <= 0)//flywheels have reached speed
             {
@@ -157,17 +165,17 @@ void HandleESC(void)
             }
             else
             {
-                servoDelay -= 1;// (servoDelay - 1);
-                proceed = false;
+                servoDelay -= 1;
+                //proceed = false;//redundant
             }
         }
         else
         {
             if (servoSpeed > 37)
             {
-                servoSpeed -= 1;// (servoSpeed - 1);
+                servoSpeed -= 1;
             }
-            delayToggle = HIGH;
+            delayToggle = true;
             proceed = false;
         }
         //servo_pin.write(servoSpeed);

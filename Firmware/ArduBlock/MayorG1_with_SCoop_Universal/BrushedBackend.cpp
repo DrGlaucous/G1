@@ -18,8 +18,8 @@ void retract()
         {
             hitBack = true;
         }
-        ArdDigitalWrite(HPIN_1, HIGH);//apply breaks
-        ArdDigitalWrite(HPIN_2, HIGH);
+        ArdDigitalWrite(HPIN_1, true);//apply breaks
+        ArdDigitalWrite(HPIN_2, true);
     }
     else//not currently in back position
     {
@@ -31,8 +31,8 @@ void retract()
                 analogWrite(STEP_PIN, 150);//we only need to set this here, because this case WILL apply eventually (the other case will carry the speed that was initally set until this happens)
 
                 //reverse driection (go back to the pin)
-                ArdDigitalWrite(HPIN_1, HIGH);
-                ArdDigitalWrite(HPIN_2, LOW);
+                ArdDigitalWrite(HPIN_1, true);
+                ArdDigitalWrite(HPIN_2, false);
                 leftNright = false;
             }
             else
@@ -40,8 +40,8 @@ void retract()
                 analogWrite(STEP_PIN, 150);
 
                 //reverse direction (the other way)
-                ArdDigitalWrite(HPIN_1, LOW);
-                ArdDigitalWrite(HPIN_2, HIGH);
+                ArdDigitalWrite(HPIN_1, false);
+                ArdDigitalWrite(HPIN_2, true);
                 leftNright = true;
             }
             hitBack = false;
@@ -72,8 +72,8 @@ void fullAuto()
         if (proceed == true)//set by the ESC handling function
         {
             pushSpeed();
-            ArdDigitalWrite(HPIN_1, HIGH);
-            ArdDigitalWrite(HPIN_2, LOW);
+            ArdDigitalWrite(HPIN_1, true);
+            ArdDigitalWrite(HPIN_2, false);
         }
         //}
 
@@ -88,16 +88,16 @@ void fullAuto()
 //will fire a set number of rounds until completed
 void selectFire()
 {
-    if (ArdDigitalRead(TRIGGER_PIN) == ON_STATE && gatekeeper == LOW)
+    if (ArdDigitalRead(TRIGGER_PIN) == ON_STATE && gatekeeper == false)
     {
         hitBack = false;
         leftNright = false;
 
-        clicked = HIGH;//depress artificial trigger
-        gatekeeper = HIGH;//this variable prevents the function from running again until the trigger is let off
+        clicked = true;//depress artificial trigger
+        gatekeeper = true;//this variable prevents the function from running again until the trigger is let off
 
     }
-    else if (clicked == HIGH)
+    else if (clicked == true)
     {
         //all of this used to be above, but it has been moved as a result of the SCoop requirement (or the removal of)
         if (proceed == true)
@@ -106,15 +106,15 @@ void selectFire()
             {
                 //spin in one direction
                 pushSpeed();
-                ArdDigitalWrite(HPIN_1, HIGH);
-                ArdDigitalWrite(HPIN_2, LOW);
+                ArdDigitalWrite(HPIN_1, true);
+                ArdDigitalWrite(HPIN_2, false);
             }
             else
             {
                 //coast (not really needed since the retract() function is call shortly after)
-                clicked = LOW;
-                ArdDigitalWrite(HPIN_1, LOW);
-                ArdDigitalWrite(HPIN_2, LOW);
+                clicked = false;
+                ArdDigitalWrite(HPIN_1, false);
+                ArdDigitalWrite(HPIN_2, false);
             }
         }
 
@@ -128,7 +128,7 @@ void selectFire()
     else
     {
         timer = 0;
-        gatekeeper = LOW;
+        gatekeeper = false;
         retract();
     }
 }

@@ -49,7 +49,7 @@ void setup()
     //arm the ESC
     servoSpeed = 37;
     servo_pin.write( servoSpeed );
-    delay( 5750 );
+    delay(ARM_DELAY);
     StartupLock = false ;
 
 }
@@ -87,5 +87,12 @@ defineTaskLoop(scoopTask5)
     ModeSelect();
 }
 
+//acceleration handling (brushless only)
+#if BACKEND_TYPE == STEPPER_BACKEND
 
+defineTaskLoop(scoopTask6)
+{
+    AccelerationTone();
+}
 
+#endif

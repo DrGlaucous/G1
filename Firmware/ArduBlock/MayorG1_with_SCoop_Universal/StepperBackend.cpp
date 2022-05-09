@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <SCoop.h>
 #include "Configuration.h"
 #include "MainUtilities.h"
 
@@ -10,14 +11,53 @@ void retract()
     if (ArdDigitalRead(ENDSTOP_PIN) == true)
     {
         ArdDigitalWrite(ENABLE_PIN, false);
-        tone(5, 600 * MICROSTEP);
+        tone(STEP_PIN, 600 * MICROSTEP);
     }
     else
     {
-        noTone(5);
+        noTone(STEP_PIN);
         ArdDigitalWrite(ENABLE_PIN, true);
     }
 }
+
+//takes the push speed and accelerates it up to the set ammount
+void AccelerationTone(void)
+{
+    if (ArdDigitalRead(TRIGGER_PIN) == ON_STATE || clicked == true)
+    {
+        if (proceed == true)
+        {
+
+            //set one time per trigger event
+            if (initialSet == false)
+            {
+                //speed of the stepper, set to 80% of its final value
+                PushSpeed = (map(ArdAnalogRead(PUSH_SPEED_PIN), 0, 1000, 0, (2000 * MICROSTEP)) - (map(ArdAnalogRead(PUSH_SPEED_PIN), 0, 1000, 0, (2000 * MICROSTEP)) * 0.2));
+
+                //the other 20% (will be added back)
+                Accel = (map(ArdAnalogRead(PUSH_SPEED_PIN), 0, 1000, 0, (2000 * MICROSTEP)) - (map(ArdAnalogRead(PUSH_SPEED_PIN), 0, 1000, 0, (2000 * MICROSTEP)) * 0.8));
+               
+                
+                initialSet = true;
+            }
+
+            //checks to see if we added back that speed or not
+            if (PushSpeed < map(ArdAnalogRead(PUSH_SPEED_PIN), 0, 1000, 0, (2000 * MICROSTEP))   )
+            {
+                //add back 1/40th of that 20% every 10 milliseconds
+                PushSpeed = (PushSpeed + (Accel / 40));
+
+                sleep(10);//turn tasks over to SCoop
+            }
+        }
+    }
+    else
+    {
+        initialSet = false;
+    }
+}
+
+
 
 
 void fullAuto()
@@ -52,7 +92,7 @@ void selectFire()
         timer = 0;
 
     }
-    else if (clicked == true)//counts the rotations
+    else if (clicked == true)//spins for the appointed rotations
     {
 
         if (proceed == true)
@@ -74,9 +114,10 @@ void selectFire()
     }
     else
     {
+        timer = 0;
         gatekeeper = false;
+        retract();
     }
-    retract();
 }
 
 

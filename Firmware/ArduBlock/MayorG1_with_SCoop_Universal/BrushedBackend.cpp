@@ -50,7 +50,7 @@ void retract()
 }
 
 //maps the potentiometer to the pusher speed
-void pushSpeed()
+void SetPushSpeed()
 {
     analogWrite(STEP_PIN, map(ArdAnalogRead(PUSH_SPEED_PIN), 0, 1023, 0, 255));
 }
@@ -71,7 +71,7 @@ void fullAuto()
         //mySCoop.sleep(1);
         if (proceed == true)//set by the ESC handling function
         {
-            pushSpeed();
+            SetPushSpeed();
             ArdDigitalWrite(HPIN_1, true);
             ArdDigitalWrite(HPIN_2, false);
         }
@@ -105,7 +105,7 @@ void selectFire()
             if (SpinCount < FireType)
             {
                 //spin in one direction
-                pushSpeed();
+                SetPushSpeed();
                 ArdDigitalWrite(HPIN_1, true);
                 ArdDigitalWrite(HPIN_2, false);
             }

@@ -89,28 +89,29 @@ void SelectFireTimeout(void)
 void ModeSelect(void)
 {
 
-  if (ArdAnalogRead(PUSH_MODE_PIN) < 250)
-  {
-    fullAuto();
-  }
-  else if (ArdAnalogRead(PUSH_MODE_PIN) < 500)
-  {
-      FireType = 3;
-      delayCurve = 8.9;
-      selectFire();
-  }
-  else if (ArdAnalogRead(PUSH_MODE_PIN) < 750)
-  {
-      FireType = 2;
-      delayCurve = 8.0;
-      selectFire();
-  }
-  else
-  {
-      FireType = 1;
-      delayCurve = 7.4;
-      selectFire();
-  }
+    if (ArdAnalogRead(PUSH_MODE_PIN) < 250)
+    {
+        clicked = false;
+        fullAuto();
+    }
+    else if (ArdAnalogRead(PUSH_MODE_PIN) < 500)
+    {
+        FireType = 3;
+        delayCurve = 8.9;
+        selectFire();
+    }
+    else if (ArdAnalogRead(PUSH_MODE_PIN) < 750)
+    {
+        FireType = 2;
+        delayCurve = 8.0;
+        selectFire();
+    }
+    else
+    {
+        FireType = 1;
+        delayCurve = 7.4;
+        selectFire();
+    }
 
 
   
@@ -178,7 +179,8 @@ void HandleESC(void)
             delayToggle = true;
             proceed = false;
         }
-        //servo_pin.write(servoSpeed);
+
+        servo_pin.write(servoSpeed);//apply the servoSpeed to the ESC
         sleep(10);
     }
 }

@@ -2,7 +2,8 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/Firmware/ArduBlock/MayorG1_with_SCoop_Universal/.vs
-/Firmware/ArduBlock/MayorG1_with_SCoop_Universal/Release
-/Firmware/ArduBlock/MayorG1_with_SCoop_Universal/Debug
-/Firmware/ArduBlock/MayorG1_with_SCoop_Universal/__vm
+/Firmware/MayorG1_with_SCoop_Universal/.vs
+/Firmware/MayorG1_with_SCoop_Universal/Release
+/Firmware/MayorG1_with_SCoop_Universal/Debug
+/Firmware/MayorG1_with_SCoop_Universal/__vm
+*.gcode
